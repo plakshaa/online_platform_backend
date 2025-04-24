@@ -1,0 +1,59 @@
+-- Create database
+CREATE DATABASE IF NOT EXISTS skillup_db;
+USE skillup_db;
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('admin', 'student') DEFAULT 'student',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Courses table
+CREATE TABLE IF NOT EXISTS courses (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(200) NOT NULL,
+  description TEXT,
+  instructor_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Lessons table
+CREATE TABLE IF NOT EXISTS lessons (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  course_id INT NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  content TEXT,
+  order_index INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
+
+-- Enrollments table
+CREATE TABLE IF NOT EXISTS enrollments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  course_id INT NOT NULL,
+  enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_enrollment (user_id, course_id)
+);
+
+-- Progress table
+CREATE TABLE IF NOT EXISTS progress (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  lesson_id INT NOT NULL,
+  completed_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_progress (user_id, lesson_id)
+); 
